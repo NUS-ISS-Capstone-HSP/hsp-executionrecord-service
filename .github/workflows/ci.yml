@@ -68,7 +68,10 @@ jobs:
           exit-code: "1"
 
       - name: Build docker image
-        run: docker build -t "local/${{ github.event.repository.name }}:${{ github.sha }}" .
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          REPO_NAME="${REPO_NAME,,}"
+          docker build -t "local/${REPO_NAME}:${GITHUB_SHA}" .
 
       - name: Login to Aliyun registry
         if: github.ref == 'refs/heads/main'
@@ -80,8 +83,11 @@ jobs:
       - name: Push docker image to Aliyun
         if: github.ref == 'refs/heads/main'
         run: |
-          LOCAL_IMAGE="local/${{ github.event.repository.name }}:${{ github.sha }}"
-          IMAGE_BASE="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/${{ github.event.repository.name }}"
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          REPO_NAME="${REPO_NAME,,}"
+
+          LOCAL_IMAGE="local/${REPO_NAME}:${GITHUB_SHA}"
+          IMAGE_BASE="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/${REPO_NAME}"
           IMAGE_SHA="${IMAGE_BASE}:${GITHUB_SHA}"
           IMAGE_LATEST="${IMAGE_BASE}:latest"
 
