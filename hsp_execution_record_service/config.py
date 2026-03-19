@@ -16,11 +16,12 @@ class Settings(BaseSettings):
     http_port: int = 8080
 
     use_mock_repository: bool = False
-    mysql_dsn: str = "mysql+aiomysql://app:app@mysql:3306/execution_record"
+    mysql_dsn: str = "mysql+aiomysql://root:root@mysql:3306/execution_record"
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
+        env_prefix="HSP_EXECUTION_RECORD_SERVICE_",
         extra="ignore",
     )
 
