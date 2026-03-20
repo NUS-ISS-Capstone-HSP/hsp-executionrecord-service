@@ -10,7 +10,7 @@ from hsp_execution_record_service.transport.http.schemas import (
 
 
 def build_router(echo_service: EchoService) -> APIRouter:
-    router = APIRouter(prefix="/api/v1", tags=["echo"])
+    router = APIRouter(prefix="/api/execution/v1", tags=["echo"])
 
     @router.post(
         "/echo",
