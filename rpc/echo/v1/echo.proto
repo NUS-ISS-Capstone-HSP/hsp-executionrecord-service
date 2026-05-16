@@ -1,28 +1,48 @@
 syntax = "proto3";
 
-package echo.v1;
+package execution_record.v1;
 
-message EchoRecord {
+message ExecutionRecord {
   string id = 1;
-  string message = 2;
-  string source = 3;
-  string created_at = 4;
+  string order_id = 2;
+  string worker_id = 3;
+  string status = 4;
+  string start_time = 5;
+  string end_time = 6;
+  int32 duration_minutes = 7;
+  string created_at = 8;
+  string updated_at = 9;
 }
 
-message CreateEchoRequest {
-  string message = 1;
+message StartServiceRequest {
+  string order_id = 1;
+  string worker_id = 2;
+  string actor_user_id = 3;
+  string actor_role = 4;
 }
 
-message CreateEchoResponse {
-  EchoRecord record = 1;
+message StartServiceResponse {
+  ExecutionRecord record = 1;
 }
 
-message GetEchoRequest {
-  string id = 1;
+message EndServiceRequest {
+  string record_id = 1;
+  string actor_user_id = 2;
+  string actor_role = 3;
 }
 
-message GetEchoResponse {
-  EchoRecord record = 1;
+message EndServiceResponse {
+  ExecutionRecord record = 1;
+}
+
+message QueryServiceRecordsRequest {
+  string actor_user_id = 1;
+  string actor_role = 2;
+  string worker_id = 3;
+}
+
+message QueryServiceRecordsResponse {
+  repeated ExecutionRecord records = 1;
 }
 
 message HealthRequest {}
@@ -31,8 +51,9 @@ message HealthResponse {
   string status = 1;
 }
 
-service EchoService {
-  rpc CreateEcho(CreateEchoRequest) returns (CreateEchoResponse);
-  rpc GetEcho(GetEchoRequest) returns (GetEchoResponse);
+service ExecutionRecordService {
+  rpc StartService(StartServiceRequest) returns (StartServiceResponse);
+  rpc EndService(EndServiceRequest) returns (EndServiceResponse);
+  rpc QueryServiceRecords(QueryServiceRecordsRequest) returns (QueryServiceRecordsResponse);
   rpc Health(HealthRequest) returns (HealthResponse);
 }

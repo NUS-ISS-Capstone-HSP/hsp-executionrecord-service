@@ -1,15 +1,15 @@
 import json
 from pathlib import Path
 
-from hsp_execution_record_service.repository.in_memory import InMemoryEchoRepository
-from hsp_execution_record_service.service.echo_service import EchoService
+from hsp_execution_record_service.repository.in_memory import InMemoryExecutionRecordRepository
+from hsp_execution_record_service.service.execution_record_service import ExecutionRecordService
 from hsp_execution_record_service.transport.http.app import create_http_app
 
 OUTPUT_PATH = Path("docs/openapi.json")
 
 
 def main() -> None:
-    app = create_http_app(EchoService(InMemoryEchoRepository()))
+    app = create_http_app(ExecutionRecordService(InMemoryExecutionRecordRepository()))
     schema = app.openapi()
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)

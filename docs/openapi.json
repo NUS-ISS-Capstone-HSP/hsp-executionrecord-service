@@ -5,37 +5,67 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/api/execution/v1/echo": {
+    "/api/execution/v1/services/start": {
       "post": {
         "tags": [
-          "echo"
+          "execution-records"
         ],
-        "summary": "Create echo record",
-        "description": "Store an echo message and return the created record.",
-        "operationId": "create_echo_api_v1_echo_post",
+        "summary": "Start service",
+        "description": "Create a STARTED execution record for an assigned worker order.",
+        "operationId": "start_service_api_execution_v1_services_start_post",
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Caller user id.",
+              "title": "X-User-Id"
+            },
+            "description": "Caller user id."
+          },
+          {
+            "name": "X-User-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Caller role.",
+              "title": "X-User-Role"
+            },
+            "description": "Caller role."
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateEchoRequest"
+                "$ref": "#/components/schemas/StartServiceRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
-            "description": "Created echo record.",
+            "description": "Started execution record.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EchoRecordResponse"
+                  "$ref": "#/components/schemas/ExecutionRecordResponse"
                 }
               }
             }
           },
           "400": {
             "description": "Business validation failed."
+          },
+          "403": {
+            "description": "Caller is not allowed to start this service."
+          },
+          "409": {
+            "description": "Service was already started or completed."
           },
           "422": {
             "description": "Request payload validation failed."
@@ -43,34 +73,56 @@
         }
       }
     },
-    "/api/execution/v1/echo/{echo_id}": {
-      "get": {
+    "/api/execution/v1/services/{record_id}/end": {
+      "post": {
         "tags": [
-          "echo"
+          "execution-records"
         ],
-        "summary": "Get echo record by id",
-        "description": "Query a previously created echo record.",
-        "operationId": "get_echo_api_v1_echo__echo_id__get",
+        "summary": "End service",
+        "description": "Complete a STARTED execution record and calculate duration.",
+        "operationId": "end_service_api_execution_v1_services__record_id__end_post",
         "parameters": [
           {
-            "name": "echo_id",
+            "name": "record_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
-              "description": "Echo record id (UUID).",
-              "title": "Echo Id"
+              "description": "Execution record id (UUID).",
+              "title": "Record Id"
             },
-            "description": "Echo record id (UUID)."
+            "description": "Execution record id (UUID)."
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Caller user id.",
+              "title": "X-User-Id"
+            },
+            "description": "Caller user id."
+          },
+          {
+            "name": "X-User-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Caller role.",
+              "title": "X-User-Role"
+            },
+            "description": "Caller role."
           }
         ],
         "responses": {
           "200": {
-            "description": "Echo record details.",
+            "description": "Completed execution record.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EchoRecordResponse"
+                  "$ref": "#/components/schemas/ExecutionRecordResponse"
                 }
               }
             }
@@ -78,8 +130,94 @@
           "400": {
             "description": "Business validation failed."
           },
+          "403": {
+            "description": "Caller is not allowed to end this service."
+          },
           "404": {
-            "description": "Echo record was not found."
+            "description": "Execution record was not found."
+          },
+          "409": {
+            "description": "Execution record is not STARTED."
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/execution/v1/services/records": {
+      "get": {
+        "tags": [
+          "execution-records"
+        ],
+        "summary": "Query service records",
+        "description": "Workers can query own records. Admin, staff and owner can query all records.",
+        "operationId": "query_service_records_api_execution_v1_services_records_get",
+        "parameters": [
+          {
+            "name": "worker_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional worker id filter.",
+              "title": "Worker Id"
+            },
+            "description": "Optional worker id filter."
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Caller user id.",
+              "title": "X-User-Id"
+            },
+            "description": "Caller user id."
+          },
+          {
+            "name": "X-User-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Caller role.",
+              "title": "X-User-Role"
+            },
+            "description": "Caller role."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Execution record list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryServiceRecordsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Business validation failed."
+          },
+          "403": {
+            "description": "Caller is not allowed to query these records."
           },
           "422": {
             "description": "Validation Error",
@@ -122,61 +260,89 @@
   },
   "components": {
     "schemas": {
-      "CreateEchoRequest": {
-        "properties": {
-          "message": {
-            "type": "string",
-            "maxLength": 2048,
-            "minLength": 1,
-            "title": "Message",
-            "description": "Message content to be stored as an echo record."
-          }
-        },
-        "type": "object",
-        "required": [
-          "message"
-        ],
-        "title": "CreateEchoRequest",
-        "example": {
-          "message": "Hello from HTTP"
-        }
-      },
-      "EchoRecordResponse": {
+      "ExecutionRecordResponse": {
         "properties": {
           "id": {
             "type": "string",
             "title": "Id",
-            "description": "Echo record id (UUID)."
+            "description": "Execution record id (UUID)."
           },
-          "message": {
+          "order_id": {
             "type": "string",
-            "title": "Message",
-            "description": "Stored message."
+            "title": "Order Id",
+            "description": "Order id."
           },
-          "source": {
+          "worker_id": {
             "type": "string",
-            "title": "Source",
-            "description": "Record source. HTTP or GRPC."
+            "title": "Worker Id",
+            "description": "Worker id."
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Execution status."
+          },
+          "start_time": {
+            "type": "string",
+            "title": "Start Time",
+            "description": "Service start time in ISO-8601 format."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "Service end time in ISO-8601 format."
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes",
+            "description": "Service duration in whole minutes."
           },
           "created_at": {
             "type": "string",
             "title": "Created At",
             "description": "Creation time in ISO-8601 format."
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "Last update time in ISO-8601 format."
           }
         },
         "type": "object",
         "required": [
           "id",
-          "message",
-          "source",
-          "created_at"
+          "order_id",
+          "worker_id",
+          "status",
+          "start_time",
+          "end_time",
+          "duration_minutes",
+          "created_at",
+          "updated_at"
         ],
-        "title": "EchoRecordResponse",
+        "title": "ExecutionRecordResponse",
         "example": {
           "created_at": "2026-03-18T12:34:56+00:00",
           "id": "6f88f9f2-65fd-4ef7-80de-2c96d8ab7b5b",
-          "message": "Hello from HTTP",
-          "source": "HTTP"
+          "order_id": "order-123",
+          "start_time": "2026-03-18T12:34:56+00:00",
+          "status": "STARTED",
+          "updated_at": "2026-03-18T12:34:56+00:00",
+          "worker_id": "worker-456"
         }
       },
       "HTTPValidationError": {
@@ -191,6 +357,51 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "QueryServiceRecordsResponse": {
+        "properties": {
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutionRecordResponse"
+            },
+            "type": "array",
+            "title": "Records",
+            "description": "Execution records."
+          }
+        },
+        "type": "object",
+        "required": [
+          "records"
+        ],
+        "title": "QueryServiceRecordsResponse"
+      },
+      "StartServiceRequest": {
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Order Id",
+            "description": "Order id to start service for."
+          },
+          "worker_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Worker Id",
+            "description": "Worker id assigned to the order."
+          }
+        },
+        "type": "object",
+        "required": [
+          "order_id",
+          "worker_id"
+        ],
+        "title": "StartServiceRequest",
+        "example": {
+          "order_id": "order-123",
+          "worker_id": "worker-456"
+        }
       },
       "ValidationError": {
         "properties": {

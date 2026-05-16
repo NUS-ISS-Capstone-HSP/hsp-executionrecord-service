@@ -24,27 +24,31 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16rpc/echo/v1/echo.proto\x12\x07\x65\x63ho.v1\"M\n\nEchoRecord\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x12\n\ncreated_at\x18\x04 \x01(\t\"$\n\x11\x43reateEchoRequest\x12\x0f\n\x07message\x18\x01 \x01(\t\"9\n\x12\x43reateEchoResponse\x12#\n\x06record\x18\x01 \x01(\x0b\x32\x13.echo.v1.EchoRecord\"\x1c\n\x0eGetEchoRequest\x12\n\n\x02id\x18\x01 \x01(\t\"6\n\x0fGetEchoResponse\x12#\n\x06record\x18\x01 \x01(\x0b\x32\x13.echo.v1.EchoRecord\"\x0f\n\rHealthRequest\" \n\x0eHealthResponse\x12\x0e\n\x06status\x18\x01 \x01(\t2\xcd\x01\n\x0b\x45\x63hoService\x12\x45\n\nCreateEcho\x12\x1a.echo.v1.CreateEchoRequest\x1a\x1b.echo.v1.CreateEchoResponse\x12<\n\x07GetEcho\x12\x17.echo.v1.GetEchoRequest\x1a\x18.echo.v1.GetEchoResponse\x12\x39\n\x06Health\x12\x16.echo.v1.HealthRequest\x1a\x17.echo.v1.HealthResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16rpc/echo/v1/echo.proto\x12\x13\x65xecution_record.v1\"\xba\x01\n\x0f\x45xecutionRecord\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08order_id\x18\x02 \x01(\t\x12\x11\n\tworker_id\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x12\n\nstart_time\x18\x05 \x01(\t\x12\x10\n\x08\x65nd_time\x18\x06 \x01(\t\x12\x18\n\x10\x64uration_minutes\x18\x07 \x01(\x05\x12\x12\n\ncreated_at\x18\x08 \x01(\t\x12\x12\n\nupdated_at\x18\t \x01(\t\"e\n\x13StartServiceRequest\x12\x10\n\x08order_id\x18\x01 \x01(\t\x12\x11\n\tworker_id\x18\x02 \x01(\t\x12\x15\n\ractor_user_id\x18\x03 \x01(\t\x12\x12\n\nactor_role\x18\x04 \x01(\t\"L\n\x14StartServiceResponse\x12\x34\n\x06record\x18\x01 \x01(\x0b\x32$.execution_record.v1.ExecutionRecord\"Q\n\x11\x45ndServiceRequest\x12\x11\n\trecord_id\x18\x01 \x01(\t\x12\x15\n\ractor_user_id\x18\x02 \x01(\t\x12\x12\n\nactor_role\x18\x03 \x01(\t\"J\n\x12\x45ndServiceResponse\x12\x34\n\x06record\x18\x01 \x01(\x0b\x32$.execution_record.v1.ExecutionRecord\"Z\n\x1aQueryServiceRecordsRequest\x12\x15\n\ractor_user_id\x18\x01 \x01(\t\x12\x12\n\nactor_role\x18\x02 \x01(\t\x12\x11\n\tworker_id\x18\x03 \x01(\t\"T\n\x1bQueryServiceRecordsResponse\x12\x35\n\x07records\x18\x01 \x03(\x0b\x32$.execution_record.v1.ExecutionRecord\"\x0f\n\rHealthRequest\" \n\x0eHealthResponse\x12\x0e\n\x06status\x18\x01 \x01(\t2\xa9\x03\n\x16\x45xecutionRecordService\x12\x63\n\x0cStartService\x12(.execution_record.v1.StartServiceRequest\x1a).execution_record.v1.StartServiceResponse\x12]\n\nEndService\x12&.execution_record.v1.EndServiceRequest\x1a\'.execution_record.v1.EndServiceResponse\x12x\n\x13QueryServiceRecords\x12/.execution_record.v1.QueryServiceRecordsRequest\x1a\x30.execution_record.v1.QueryServiceRecordsResponse\x12Q\n\x06Health\x12\".execution_record.v1.HealthRequest\x1a#.execution_record.v1.HealthResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'rpc.echo.v1.echo_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ECHORECORD']._serialized_start=35
-  _globals['_ECHORECORD']._serialized_end=112
-  _globals['_CREATEECHOREQUEST']._serialized_start=114
-  _globals['_CREATEECHOREQUEST']._serialized_end=150
-  _globals['_CREATEECHORESPONSE']._serialized_start=152
-  _globals['_CREATEECHORESPONSE']._serialized_end=209
-  _globals['_GETECHOREQUEST']._serialized_start=211
-  _globals['_GETECHOREQUEST']._serialized_end=239
-  _globals['_GETECHORESPONSE']._serialized_start=241
-  _globals['_GETECHORESPONSE']._serialized_end=295
-  _globals['_HEALTHREQUEST']._serialized_start=297
-  _globals['_HEALTHREQUEST']._serialized_end=312
-  _globals['_HEALTHRESPONSE']._serialized_start=314
-  _globals['_HEALTHRESPONSE']._serialized_end=346
-  _globals['_ECHOSERVICE']._serialized_start=349
-  _globals['_ECHOSERVICE']._serialized_end=554
+  _globals['_EXECUTIONRECORD']._serialized_start=48
+  _globals['_EXECUTIONRECORD']._serialized_end=234
+  _globals['_STARTSERVICEREQUEST']._serialized_start=236
+  _globals['_STARTSERVICEREQUEST']._serialized_end=337
+  _globals['_STARTSERVICERESPONSE']._serialized_start=339
+  _globals['_STARTSERVICERESPONSE']._serialized_end=415
+  _globals['_ENDSERVICEREQUEST']._serialized_start=417
+  _globals['_ENDSERVICEREQUEST']._serialized_end=498
+  _globals['_ENDSERVICERESPONSE']._serialized_start=500
+  _globals['_ENDSERVICERESPONSE']._serialized_end=574
+  _globals['_QUERYSERVICERECORDSREQUEST']._serialized_start=576
+  _globals['_QUERYSERVICERECORDSREQUEST']._serialized_end=666
+  _globals['_QUERYSERVICERECORDSRESPONSE']._serialized_start=668
+  _globals['_QUERYSERVICERECORDSRESPONSE']._serialized_end=752
+  _globals['_HEALTHREQUEST']._serialized_start=754
+  _globals['_HEALTHREQUEST']._serialized_end=769
+  _globals['_HEALTHRESPONSE']._serialized_start=771
+  _globals['_HEALTHRESPONSE']._serialized_end=803
+  _globals['_EXECUTIONRECORDSERVICE']._serialized_start=806
+  _globals['_EXECUTIONRECORDSERVICE']._serialized_end=1231
 # @@protoc_insertion_point(module_scope)
