@@ -4,9 +4,9 @@ import pytest
 
 from hsp_execution_record_service.bootstrap.container import build_container
 from hsp_execution_record_service.config import get_settings
-from hsp_execution_record_service.domain.models import SourceType
-from hsp_execution_record_service.repository.in_memory import InMemoryEchoRepository
-from hsp_execution_record_service.repository.mysql import SQLAlchemyEchoRepository
+from hsp_execution_record_service.repository.in_memory import InMemoryExecutionRecordRepository
+from hsp_execution_record_service.repository.mysql import SQLAlchemyExecutionRecordRepository
+from hsp_execution_record_service.service.execution_record_service import parse_actor
 
 
 @pytest.mark.asyncio
@@ -18,7 +18,7 @@ async def test_build_container_with_mock_repository(monkeypatch: pytest.MonkeyPa
 
     container = await build_container()
 
-    assert isinstance(container.echo_repository, InMemoryEchoRepository)
+    assert isinstance(container.execution_record_repository, InMemoryExecutionRecordRepository)
     assert container.engine is None
     assert container.session_factory is None
 
@@ -38,13 +38,19 @@ async def test_build_container_with_sqlalchemy_repository(
 
     container = await build_container()
 
-    assert isinstance(container.echo_repository, SQLAlchemyEchoRepository)
+    assert isinstance(container.execution_record_repository, SQLAlchemyExecutionRecordRepository)
     assert container.engine is not None
     assert container.session_factory is not None
 
-    created = await container.echo_service.create_echo("from-container", SourceType.HTTP)
-    fetched = await container.echo_service.get_echo(created.id)
-    assert fetched.id == created.id
+    created = await container.execution_record_service.start_service(
+        "order-1",
+        "worker-1",
+        parse_actor("worker-1", "worker"),
+    )
+    records = await container.execution_record_service.query_service_records(
+        parse_actor("admin-1", "admin"),
+    )
+    assert [record.id for record in records] == [created.id]
 
     if container.engine is not None:
         await container.engine.dispose()

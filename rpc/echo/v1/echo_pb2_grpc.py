@@ -25,7 +25,7 @@ if _version_not_supported:
     )
 
 
-class EchoServiceStub(object):
+class ExecutionRecordServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,33 +34,44 @@ class EchoServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.CreateEcho = channel.unary_unary(
-                '/echo.v1.EchoService/CreateEcho',
-                request_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.CreateEchoRequest.SerializeToString,
-                response_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.CreateEchoResponse.FromString,
+        self.StartService = channel.unary_unary(
+                '/execution_record.v1.ExecutionRecordService/StartService',
+                request_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.StartServiceRequest.SerializeToString,
+                response_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.StartServiceResponse.FromString,
                 _registered_method=True)
-        self.GetEcho = channel.unary_unary(
-                '/echo.v1.EchoService/GetEcho',
-                request_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.GetEchoRequest.SerializeToString,
-                response_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.GetEchoResponse.FromString,
+        self.EndService = channel.unary_unary(
+                '/execution_record.v1.ExecutionRecordService/EndService',
+                request_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.EndServiceRequest.SerializeToString,
+                response_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.EndServiceResponse.FromString,
+                _registered_method=True)
+        self.QueryServiceRecords = channel.unary_unary(
+                '/execution_record.v1.ExecutionRecordService/QueryServiceRecords',
+                request_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.QueryServiceRecordsRequest.SerializeToString,
+                response_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.QueryServiceRecordsResponse.FromString,
                 _registered_method=True)
         self.Health = channel.unary_unary(
-                '/echo.v1.EchoService/Health',
+                '/execution_record.v1.ExecutionRecordService/Health',
                 request_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.HealthRequest.SerializeToString,
                 response_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.HealthResponse.FromString,
                 _registered_method=True)
 
 
-class EchoServiceServicer(object):
+class ExecutionRecordServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def CreateEcho(self, request, context):
+    def StartService(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetEcho(self, request, context):
+    def EndService(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def QueryServiceRecords(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -73,17 +84,22 @@ class EchoServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_EchoServiceServicer_to_server(servicer, server):
+def add_ExecutionRecordServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'CreateEcho': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateEcho,
-                    request_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.CreateEchoRequest.FromString,
-                    response_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.CreateEchoResponse.SerializeToString,
+            'StartService': grpc.unary_unary_rpc_method_handler(
+                    servicer.StartService,
+                    request_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.StartServiceRequest.FromString,
+                    response_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.StartServiceResponse.SerializeToString,
             ),
-            'GetEcho': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetEcho,
-                    request_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.GetEchoRequest.FromString,
-                    response_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.GetEchoResponse.SerializeToString,
+            'EndService': grpc.unary_unary_rpc_method_handler(
+                    servicer.EndService,
+                    request_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.EndServiceRequest.FromString,
+                    response_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.EndServiceResponse.SerializeToString,
+            ),
+            'QueryServiceRecords': grpc.unary_unary_rpc_method_handler(
+                    servicer.QueryServiceRecords,
+                    request_deserializer=rpc_dot_echo_dot_v1_dot_echo__pb2.QueryServiceRecordsRequest.FromString,
+                    response_serializer=rpc_dot_echo_dot_v1_dot_echo__pb2.QueryServiceRecordsResponse.SerializeToString,
             ),
             'Health': grpc.unary_unary_rpc_method_handler(
                     servicer.Health,
@@ -92,17 +108,17 @@ def add_EchoServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'echo.v1.EchoService', rpc_method_handlers)
+            'execution_record.v1.ExecutionRecordService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('echo.v1.EchoService', rpc_method_handlers)
+    server.add_registered_method_handlers('execution_record.v1.ExecutionRecordService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class EchoService(object):
+class ExecutionRecordService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def CreateEcho(request,
+    def StartService(request,
             target,
             options=(),
             channel_credentials=None,
@@ -115,9 +131,9 @@ class EchoService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/echo.v1.EchoService/CreateEcho',
-            rpc_dot_echo_dot_v1_dot_echo__pb2.CreateEchoRequest.SerializeToString,
-            rpc_dot_echo_dot_v1_dot_echo__pb2.CreateEchoResponse.FromString,
+            '/execution_record.v1.ExecutionRecordService/StartService',
+            rpc_dot_echo_dot_v1_dot_echo__pb2.StartServiceRequest.SerializeToString,
+            rpc_dot_echo_dot_v1_dot_echo__pb2.StartServiceResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -129,7 +145,7 @@ class EchoService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetEcho(request,
+    def EndService(request,
             target,
             options=(),
             channel_credentials=None,
@@ -142,9 +158,36 @@ class EchoService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/echo.v1.EchoService/GetEcho',
-            rpc_dot_echo_dot_v1_dot_echo__pb2.GetEchoRequest.SerializeToString,
-            rpc_dot_echo_dot_v1_dot_echo__pb2.GetEchoResponse.FromString,
+            '/execution_record.v1.ExecutionRecordService/EndService',
+            rpc_dot_echo_dot_v1_dot_echo__pb2.EndServiceRequest.SerializeToString,
+            rpc_dot_echo_dot_v1_dot_echo__pb2.EndServiceResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def QueryServiceRecords(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/execution_record.v1.ExecutionRecordService/QueryServiceRecords',
+            rpc_dot_echo_dot_v1_dot_echo__pb2.QueryServiceRecordsRequest.SerializeToString,
+            rpc_dot_echo_dot_v1_dot_echo__pb2.QueryServiceRecordsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -169,7 +212,7 @@ class EchoService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/echo.v1.EchoService/Health',
+            '/execution_record.v1.ExecutionRecordService/Health',
             rpc_dot_echo_dot_v1_dot_echo__pb2.HealthRequest.SerializeToString,
             rpc_dot_echo_dot_v1_dot_echo__pb2.HealthResponse.FromString,
             options,

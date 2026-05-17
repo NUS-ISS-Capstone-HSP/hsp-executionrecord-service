@@ -1,1 +1,1 @@
-"""Echo protobuf package."""
+"""Execution record protobuf package."""

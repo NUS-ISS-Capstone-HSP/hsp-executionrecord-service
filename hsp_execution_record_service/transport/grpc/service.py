@@ -1,39 +1,77 @@
 import grpc
 
-from hsp_execution_record_service.domain.errors import NotFoundError, ValidationError
-from hsp_execution_record_service.domain.models import SourceType
-from hsp_execution_record_service.service.echo_service import EchoService
+from hsp_execution_record_service.domain.errors import (
+    ConflictError,
+    ForbiddenError,
+    NotFoundError,
+    ValidationError,
+)
+from hsp_execution_record_service.service.execution_record_service import (
+    ExecutionRecordService,
+    parse_actor,
+)
 from hsp_execution_record_service.transport.grpc.mapper import to_grpc_record
 from rpc.echo.v1 import echo_pb2, echo_pb2_grpc
 
 
-class EchoGrpcService(echo_pb2_grpc.EchoServiceServicer):
-    def __init__(self, echo_service: EchoService) -> None:
-        self._echo_service = echo_service
+class ExecutionRecordGrpcService(echo_pb2_grpc.ExecutionRecordServiceServicer):
+    def __init__(self, execution_record_service: ExecutionRecordService) -> None:
+        self._execution_record_service = execution_record_service
 
-    async def CreateEcho(
+    async def StartService(
         self,
-        request: echo_pb2.CreateEchoRequest,
+        request: echo_pb2.StartServiceRequest,
         context: grpc.aio.ServicerContext,
-    ) -> echo_pb2.CreateEchoResponse:
+    ) -> echo_pb2.StartServiceResponse:
         try:
-            record = await self._echo_service.create_echo(request.message, SourceType.GRPC)
+            actor = parse_actor(request.actor_user_id, request.actor_role)
+            record = await self._execution_record_service.start_service(
+                request.order_id,
+                request.worker_id,
+                actor,
+            )
         except ValidationError as exc:
             await context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
-        return echo_pb2.CreateEchoResponse(record=to_grpc_record(record))
+        except ForbiddenError as exc:
+            await context.abort(grpc.StatusCode.PERMISSION_DENIED, str(exc))
+        except ConflictError as exc:
+            await context.abort(grpc.StatusCode.FAILED_PRECONDITION, str(exc))
+        return echo_pb2.StartServiceResponse(record=to_grpc_record(record))
 
-    async def GetEcho(
+    async def EndService(
         self,
-        request: echo_pb2.GetEchoRequest,
+        request: echo_pb2.EndServiceRequest,
         context: grpc.aio.ServicerContext,
-    ) -> echo_pb2.GetEchoResponse:
+    ) -> echo_pb2.EndServiceResponse:
         try:
-            record = await self._echo_service.get_echo(request.id)
+            actor = parse_actor(request.actor_user_id, request.actor_role)
+            record = await self._execution_record_service.end_service(request.record_id, actor)
         except ValidationError as exc:
             await context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except ForbiddenError as exc:
+            await context.abort(grpc.StatusCode.PERMISSION_DENIED, str(exc))
         except NotFoundError as exc:
             await context.abort(grpc.StatusCode.NOT_FOUND, str(exc))
-        return echo_pb2.GetEchoResponse(record=to_grpc_record(record))
+        except ConflictError as exc:
+            await context.abort(grpc.StatusCode.FAILED_PRECONDITION, str(exc))
+        return echo_pb2.EndServiceResponse(record=to_grpc_record(record))
+
+    async def QueryServiceRecords(
+        self,
+        request: echo_pb2.QueryServiceRecordsRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> echo_pb2.QueryServiceRecordsResponse:
+        try:
+            actor = parse_actor(request.actor_user_id, request.actor_role)
+            worker_id = request.worker_id or None
+            records = await self._execution_record_service.query_service_records(actor, worker_id)
+        except ValidationError as exc:
+            await context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except ForbiddenError as exc:
+            await context.abort(grpc.StatusCode.PERMISSION_DENIED, str(exc))
+        return echo_pb2.QueryServiceRecordsResponse(
+            records=[to_grpc_record(record) for record in records],
+        )
 
     async def Health(
         self,

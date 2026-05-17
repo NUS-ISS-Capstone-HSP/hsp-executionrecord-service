@@ -1,6 +1,7 @@
-# HSP Execution Record Service Template
+# HSP Execution Record Service
 
-Python 后端模板，提供同一业务能力的 HTTP + gRPC 双入口，采用共享 `service + model`、分离 transport 的分层结构。
+Python 后端服务，记录工人服务执行过程，提供 HTTP + gRPC 双入口。当前 MVP 支持
+Start Service、End Service、Query Service Records；Photo Upload 暂不实现，仅保留后续 TODO。
 
 ## 架构
 
@@ -15,13 +16,26 @@ Python 后端模板，提供同一业务能力的 HTTP + gRPC 双入口，采用
 
 HTTP:
 - `GET /healthz`
-- `POST /api/execution/v1/echo`
-- `GET /api/execution/v1/echo/{id}`
+- `POST /api/execution/v1/services/start`
+- `POST /api/execution/v1/services/{record_id}/end`
+- `GET /api/execution/v1/services/records`
 
 gRPC:
-- `CreateEcho`
-- `GetEcho`
+- `StartService`
+- `EndService`
+- `QueryServiceRecords`
 - `Health`
+
+## MVP 规则
+
+- worker 只能 start 自己的 order；当前 order assignment 使用 fake implementation，后续联调
+  order-service 或 dispatch-service。
+- 已经 STARTED 或 COMPLETED 的 order 不能重复 start。
+- 只有 STARTED 的 execution record 可以 end；end 时自动写入 `end_time` 并计算
+  `duration_minutes`。
+- worker 只能查询自己的 records；admin、staff、owner 可以查询全部，也可以用
+  `worker_id` 过滤。
+- Photo Upload 暂不实现。
 
 ## 本地开发
 
@@ -69,7 +83,35 @@ curl http://127.0.0.1:8080/healthz
 
 返回 `{"status":"ok"}` 表示 HTTP 服务启动成功。
 
-6. 查看 Swagger/OpenAPI 文档
+6. 测试 HTTP 接口
+
+Start Service:
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/execution/v1/services/start \
+  -H 'Content-Type: application/json' \
+  -H 'X-User-Id: worker-1' \
+  -H 'X-User-Role: worker' \
+  -d '{"order_id":"order-1","worker_id":"worker-1"}'
+```
+
+End Service:
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/execution/v1/services/<record_id>/end \
+  -H 'X-User-Id: worker-1' \
+  -H 'X-User-Role: worker'
+```
+
+Query Service Records:
+
+```bash
+curl http://127.0.0.1:8080/api/execution/v1/services/records \
+  -H 'X-User-Id: admin-1' \
+  -H 'X-User-Role: admin'
+```
+
+7. 查看 Swagger/OpenAPI 文档
 
 - Swagger UI: `http://127.0.0.1:8080/docs`
 - OpenAPI JSON: `http://127.0.0.1:8080/openapi.json`
