@@ -84,6 +84,41 @@ async def test_start_service_invalid_argument(
 
 
 @pytest.mark.asyncio
+async def test_start_service_permission_denied(
+    grpc_stub: echo_pb2_grpc.ExecutionRecordServiceStub,
+) -> None:
+    with pytest.raises(grpc.aio.AioRpcError) as exc_info:
+        await grpc_stub.StartService(
+            echo_pb2.StartServiceRequest(
+                order_id="order-1",
+                worker_id="worker-2",
+                actor_user_id="worker-1",
+                actor_role="worker",
+            ),
+        )
+
+    assert exc_info.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+
+@pytest.mark.asyncio
+async def test_start_service_conflict_for_duplicate_order(
+    grpc_stub: echo_pb2_grpc.ExecutionRecordServiceStub,
+) -> None:
+    request = echo_pb2.StartServiceRequest(
+        order_id="order-1",
+        worker_id="worker-1",
+        actor_user_id="worker-1",
+        actor_role="worker",
+    )
+    await grpc_stub.StartService(request)
+
+    with pytest.raises(grpc.aio.AioRpcError) as exc_info:
+        await grpc_stub.StartService(request)
+
+    assert exc_info.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+@pytest.mark.asyncio
 async def test_end_service_not_found(grpc_stub: echo_pb2_grpc.ExecutionRecordServiceStub) -> None:
     with pytest.raises(grpc.aio.AioRpcError) as exc_info:
         await grpc_stub.EndService(
@@ -95,6 +130,72 @@ async def test_end_service_not_found(grpc_stub: echo_pb2_grpc.ExecutionRecordSer
         )
 
     assert exc_info.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_end_service_invalid_argument(
+    grpc_stub: echo_pb2_grpc.ExecutionRecordServiceStub,
+) -> None:
+    with pytest.raises(grpc.aio.AioRpcError) as exc_info:
+        await grpc_stub.EndService(
+            echo_pb2.EndServiceRequest(
+                record_id="",
+                actor_user_id="worker-1",
+                actor_role="worker",
+            ),
+        )
+
+    assert exc_info.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+@pytest.mark.asyncio
+async def test_end_service_permission_denied(
+    grpc_stub: echo_pb2_grpc.ExecutionRecordServiceStub,
+) -> None:
+    created = await grpc_stub.StartService(
+        echo_pb2.StartServiceRequest(
+            order_id="order-1",
+            worker_id="worker-1",
+            actor_user_id="worker-1",
+            actor_role="worker",
+        ),
+    )
+
+    with pytest.raises(grpc.aio.AioRpcError) as exc_info:
+        await grpc_stub.EndService(
+            echo_pb2.EndServiceRequest(
+                record_id=created.record.id,
+                actor_user_id="worker-2",
+                actor_role="worker",
+            ),
+        )
+
+    assert exc_info.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+
+@pytest.mark.asyncio
+async def test_end_service_conflict_for_completed_record(
+    grpc_stub: echo_pb2_grpc.ExecutionRecordServiceStub,
+) -> None:
+    created = await grpc_stub.StartService(
+        echo_pb2.StartServiceRequest(
+            order_id="order-1",
+            worker_id="worker-1",
+            actor_user_id="worker-1",
+            actor_role="worker",
+        ),
+    )
+    request = echo_pb2.EndServiceRequest(
+        record_id=created.record.id,
+        actor_user_id="worker-1",
+        actor_role="worker",
+    )
+    await grpc_stub.EndService(request)
+
+    with pytest.raises(grpc.aio.AioRpcError) as exc_info:
+        await grpc_stub.EndService(request)
+
+    assert exc_info.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 @pytest.mark.asyncio
@@ -111,3 +212,19 @@ async def test_query_service_records_permission_denied(
         )
 
     assert exc_info.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+
+@pytest.mark.asyncio
+async def test_query_service_records_invalid_argument(
+    grpc_stub: echo_pb2_grpc.ExecutionRecordServiceStub,
+) -> None:
+    with pytest.raises(grpc.aio.AioRpcError) as exc_info:
+        await grpc_stub.QueryServiceRecords(
+            echo_pb2.QueryServiceRecordsRequest(
+                actor_user_id="admin-1",
+                actor_role="admin",
+                worker_id=" ",
+            ),
+        )
+
+    assert exc_info.value.code() == grpc.StatusCode.INVALID_ARGUMENT

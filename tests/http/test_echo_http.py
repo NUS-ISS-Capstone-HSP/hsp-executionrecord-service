@@ -71,6 +71,38 @@ def test_start_service_forbidden_for_other_worker() -> None:
     assert response.status_code == 403
 
 
+def test_start_service_conflict_for_duplicate_order() -> None:
+    client = build_client()
+    payload = {"order_id": "order-1", "worker_id": "worker-1"}
+    client.post("/api/execution/v1/services/start", json=payload, headers=WORKER_HEADERS)
+
+    response = client.post("/api/execution/v1/services/start", json=payload, headers=WORKER_HEADERS)
+
+    assert response.status_code == 409
+
+
+def test_query_service_records_domain_validation_error() -> None:
+    client = build_client()
+
+    response = client.get(
+        "/api/execution/v1/services/records?worker_id=%20",
+        headers=ADMIN_HEADERS,
+    )
+
+    assert response.status_code == 400
+
+
+def test_end_service_not_found() -> None:
+    client = build_client()
+
+    response = client.post(
+        "/api/execution/v1/services/missing-id/end",
+        headers=WORKER_HEADERS,
+    )
+
+    assert response.status_code == 404
+
+
 def test_query_service_records_worker_and_admin_scope() -> None:
     client = build_client()
     client.post(
