@@ -57,6 +57,10 @@ jobs:
         continue-on-error: true
         run: pip-audit
 
+      - name: Security scan - semgrep
+        continue-on-error: true
+        run: semgrep scan --config p/default --error hsp_execution_record_service tests
+
       - name: Security scan - trivy
         continue-on-error: true
         uses: aquasecurity/trivy-action@0.35.0
